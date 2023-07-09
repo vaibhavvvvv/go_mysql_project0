@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	"github.com/vaibhavvvvv/goMysql/pkg/config"
 )
@@ -46,7 +48,7 @@ import (
 var db *gorm.DB
 
 type Book struct {
-	gorm.Model
+	ID          uint   `gorm:"primaryKey"`
 	Name        string `gorm:"" json:"name"`
 	Author      string `json:"author"`
 	Publication string `json:"publication"`
@@ -59,26 +61,32 @@ func init() {
 }
 
 func (b *Book) CreateBook() *Book {
+
 	db.NewRecord(b)
-	db.Create(&b)
+
+	result := db.Create(&b)
+	defer fmt.Println(result.Error)
 	return b
 }
 
 func GetAllBooks() []Book {
 	var Books []Book
 	db.Find(&Books)
+	defer fmt.Println(db.Error)
 	return Books
 }
 
 func GetBookById(Id int64) (*Book, *gorm.DB) {
 	var getBook Book
 	db := db.Where("ID=?", Id).Find(&getBook)
+	defer fmt.Println(db.Error)
 	return &getBook, db
 }
 
 func DeleteBookById(ID int64) Book {
 	var book Book
 	db.Where("ID=?", ID).Delete(book)
+	defer fmt.Println(db.Error)
 	return book
 }
 
